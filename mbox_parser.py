@@ -15,6 +15,62 @@ import sys
 import time
 import unicodecsv as csv
 
+
+def breakdown_contents(contents):
+    name1 = ""
+    email1 = ""
+    topic1 = ""
+    subject1 = ""
+    message1 = ""
+    phone1 = ""
+
+    # Split the message into lines
+    lines = contents.split("\n\n")
+
+    # Iterate through the lines
+    for line1 in lines:
+        line = line1.strip()
+        if line.startswith("Name:"):
+            name1 = line.split(":")[1].strip()
+        elif line.startswith("Email Address:"):
+            email1 = line.split(":")[1].strip()
+        elif line.startswith("Topic:"):
+            topic1 = line.split(":")[1].strip()
+        elif line.startswith("Subject:"):
+            subject1 = line.split(":")[1].strip()
+        elif line.startswith("Message:"):
+            message1 = line.split(":")[1].strip()
+        elif line.startswith("Phone:"):
+            phone1 = line.split(":")[1].strip()
+
+    # Split the message into lines
+    lines = contents.split("\n")
+
+    # Iterate through the lines
+    for line1 in lines:
+        line = line1.strip()
+
+        if line.startswith("Name:"):
+            if line.split(":")[1].strip() != "":
+                name1 = line.split(":")[1].strip()
+        elif line.startswith("Email Address:"):
+            if line.split(":")[1].strip() != "":
+                email1 = line.split(":")[1].strip()
+        elif line.startswith("Topic:") or line.startswith("Type of Service Requested:"):
+            if line.split(":")[1].strip() != "":
+                topic1 = line.split(":")[1].strip()
+        elif line.startswith("Subject:"):
+            if line.split(":")[1].strip() != "":
+                subject1 = line.split(":")[1].strip()
+        elif line.startswith("Message:"):
+            if line.split(":")[1].strip() != "":
+                message1 = line.split(":")[1].strip()
+        elif line.startswith("Phone:"):
+            if line.split(":")[1].strip() != "":
+                phone1 = line.split(":")[1].strip()
+
+    return name1, email1, phone1, topic1, subject1, message1
+
 # converts seconds since epoch to mm/dd/yyyy string
 def get_date(second_since_epoch, date_format):
     if second_since_epoch is None:
@@ -39,6 +95,7 @@ def clean_content(content):
 
 # get contents of email
 def get_content(email):
+    # todo separate the body by the different sections
     parts = []
 
     for part in email.walk():
@@ -54,7 +111,6 @@ def get_content(email):
             part_contents = EmailReplyParser.parse_reply(clean_content(content))
 
         parts.append(part_contents)
-
     return parts[0]
 
 # get all emails in field
@@ -105,7 +161,7 @@ if __name__ == '__main__':
 
         # create CSV with header row
         writer = csv.writer(export_file, encoding='utf-8')
-        writer.writerow(["flagged", "date", "description", "from", "to", "cc", "subject", "content", "time (minutes)"])
+        writer.writerow(["flagged", "date", "description", "from", "to", "cc", "subject", "content", "name", "email", "phone","topic", "subject", "message"])
 
         # create row count
         row_written = 0
@@ -117,14 +173,22 @@ if __name__ == '__main__':
             sent_to = get_emails_clean(email["to"])
             cc = get_emails_clean(email["cc"])
             subject = re.sub('[\n\t\r]', ' -- ', str(email["subject"]))
-            contents = get_content(email)
+            contents = get_content(email).strip()
 
-            # apply rules to default content
-            row = rules.apply_rules(date, sent_from, sent_to, cc, subject, contents, owners, blacklist_domains)
+            # break down the contents as well
+            name, email, phone, topic, message_subject, message = breakdown_contents(contents)
 
-            # write the row
-            writer.writerow(row)
-            row_written += 1
+            # check if it a reply
+            if contents.startswith("Name") or contents.startswith("html"):
+                # apply rules to default content
+                row = rules.apply_rules(date, sent_from, sent_to, cc, message_subject, contents, name, email, phone, topic, message_subject, message)
+
+                # write the row
+                writer.writerow(row)
+                row_written += 1
+
+
+
 
         # report
         report = "generated " + export_file_name + " for " + str(row_written) + " messages"

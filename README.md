@@ -1,8 +1,8 @@
-# MBOX to CSV
+# MBOX to CSV (modified for DDN data)
 
 ![Python 3.8.3](https://img.shields.io/badge/python-3.8.3-yellow.svg)
 
-Extract emails from an MBOX file into a CSV file.
+Extract emails from an MBOX file into a CSV file. Breaks down the website form submissions sent to info@desidancenetwork.org
 
 ## Example
 
@@ -26,7 +26,21 @@ python3 mbox_parser.py example.mbox
 deactivate
 ```
 
-## Embedding Python Interpreter and Dependencies into Platypus-Built App
+## Usage with info@desidancenetwork.org
+
+1. Get the mbox of the website form submissions from the takeout folder created by google in the emails drive
+2. Download the mbox file and put it into the working directory (./website-form-submissions.mbox)
+3. Run the following command to generate your csv
+```agsl
+python3 mbox_parser.py website-form-submissions.mbox
+```
+4. This will generate a new file with the CSV called `website-form-submissions.mbox.csv`
+
+
+
+## Other
+
+### Embedding Python Interpreter and Dependencies into Platypus-Built App
 
 With some manual effort, it is possible to package this script as a drag-and-drop Platypus-built Mac app. In order to do this, we are required to bundle a python installation (interpreter and dependencies) within the app's resources. This is possible by following the guide below.
 
@@ -34,7 +48,7 @@ With some manual effort, it is possible to package this script as a drag-and-dro
 
 Once you are done with this guide, then you need to remove the `python3.8/lib/python3.8/site-packages` symlink and replace it with the `site-packages` that have been installed in your virtual environment as you were developing.
 
-## References
+### References
 
 - [Installing packages using pip and virtual environments](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 - A tutorial on working with [Virtual Environments and Packages](https://docs.python.org/3/tutorial/venv.html)

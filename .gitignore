@@ -4,6 +4,8 @@ example.mbox.csv
 .blacklist
 .owners
 *.icns
-rules.py
 python3.8
-.env
+
+.idea
+website-form-submissions.mbox
+website-form-submissions.mbox.csv
